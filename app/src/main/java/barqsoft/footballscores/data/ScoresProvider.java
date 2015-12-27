@@ -2,6 +2,7 @@ package barqsoft.footballscores.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,15 +19,21 @@ public class ScoresProvider extends ContentProvider
     private static final int MATCHES_WITH_LEAGUE = 101;
     private static final int MATCHES_WITH_ID = 102;
     private static final int MATCHES_WITH_DATE = 103;
+    private static final int MATCHES_MOST_RECENT = 104;
+
     private UriMatcher muriMatcher = buildUriMatcher();
     private static final SQLiteQueryBuilder ScoreQuery =
             new SQLiteQueryBuilder();
     private static final String SCORES_BY_LEAGUE = ScoreContract.ScoreColumn.LEAGUE_COL + " = ?";
+    private static final String SCORES_MOST_RECENT =
+            ScoreContract.ScoreColumn.DATE_COL + " <= ? AND "+
+                    ScoreContract.ScoreColumn.HOME_GOALS_COL + " != 'null' AND "+
+                    ScoreContract.ScoreColumn.AWAY_GOALS_COL + " != 'null'";
     private static final String SCORES_BY_DATE =
             ScoreContract.ScoreColumn.DATE_COL + " LIKE ?";
     private static final String SCORES_BY_ID =
             ScoreContract.ScoreColumn.MATCH_ID + " = ?";
-
+    public static final String ACTION_DATA_UPDATED = ScoreContract.CONTENT_AUTHORITY + ".ACTION_DATA_UPDATED";
 
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -35,6 +42,7 @@ public class ScoresProvider extends ContentProvider
         matcher.addURI(authority, "league" , MATCHES_WITH_LEAGUE);
         matcher.addURI(authority, "id" , MATCHES_WITH_ID);
         matcher.addURI(authority, "date" , MATCHES_WITH_DATE);
+        matcher.addURI(authority, "recent", MATCHES_MOST_RECENT);
         return matcher;
     }
 
@@ -57,6 +65,8 @@ public class ScoresProvider extends ContentProvider
            else if(link.contentEquals(ScoreContract.ScoreColumn.buildScoreWithLeague().toString()))
            {
                return MATCHES_WITH_LEAGUE;
+           }else if(link.contentEquals(ScoreContract.ScoreColumn.buildScoreMostRecent().toString())) {
+               return MATCHES_MOST_RECENT;
            }
         }
         return -1;
@@ -87,6 +97,8 @@ public class ScoresProvider extends ContentProvider
                 return ScoreContract.ScoreColumn.CONTENT_ITEM_TYPE;
             case MATCHES_WITH_DATE:
                 return ScoreContract.ScoreColumn.CONTENT_TYPE;
+            case MATCHES_MOST_RECENT:
+                return ScoreContract.ScoreColumn.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri :" + uri );
         }
@@ -115,9 +127,13 @@ public class ScoresProvider extends ContentProvider
             case MATCHES_WITH_LEAGUE: retCursor = mOpenHelper.getReadableDatabase().query(
                     ScoreContract.SCORES_TABLE,
                     projection,SCORES_BY_LEAGUE,selectionArgs,null,null,sortOrder); break;
+            case MATCHES_MOST_RECENT: retCursor = mOpenHelper.getReadableDatabase().query(
+                    ScoreContract.SCORES_TABLE,
+                    projection,SCORES_MOST_RECENT,selectionArgs,null,null,sortOrder);break;
             default: throw new UnsupportedOperationException("Unknown Uri" + uri);
         }
-        retCursor.setNotificationUri(getContext().getContentResolver(),uri);
+        if (getContext() != null)
+            retCursor.setNotificationUri(getContext().getContentResolver(),uri);
         return retCursor;
     }
 
@@ -152,7 +168,11 @@ public class ScoresProvider extends ContentProvider
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri,null);
+                if (getContext() != null) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                    Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED).setPackage(getContext().getPackageName());
+                    getContext().sendBroadcast(dataUpdatedIntent);
+                }
                 return returncount;
             default:
                 return super.bulkInsert(uri,values);

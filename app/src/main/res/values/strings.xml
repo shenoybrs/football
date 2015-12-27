@@ -21,6 +21,7 @@
     <string name="final_text">Final</string>
     <string name="share_text">Share</string>
     <string name="about">About</string>
+    <string name="empty_fixtures_list">No Scores Available</string>
     <string name="title_activity_about">AboutActivity</string>
     <string name="about_text">
         This Application get Football Matches Score for the Premier League,Seria A,Bundesliga,Primera Division
@@ -40,4 +41,8 @@
     <string name="teams_url">http://api.football-data.org/v1/teams/</string>
     <string name="fixtures_url">http://api.football-data.org/v1/fixtures</string>
     <string name="no_teams">No Teams Available</string>
+
+    <!-- Widgets -->
+    <string name="widget_latest_fixture_label">Latest Fixture</string>
+    <string name="widget_todays_fixtures_label">Today\'s Fixtures</string>
 </resources>
