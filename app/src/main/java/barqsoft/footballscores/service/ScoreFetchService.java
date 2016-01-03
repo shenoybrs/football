@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import barqsoft.footballscores.BuildConfig;
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.Utilities;
 import barqsoft.footballscores.data.ScoreContract;
@@ -137,7 +138,7 @@ public class ScoreFetchService extends IntentService {
 
                     m_connection = (HttpURLConnection) apiUrl.openConnection();
                     m_connection.setRequestMethod("GET");
-                    m_connection.addRequestProperty("X-Auth-Token", getString(R.string.api_key));
+                    m_connection.addRequestProperty("X-Auth-Token", BuildConfig.THE_API_KEY);
                     m_connection.connect();
 
                     InputStream inputStream = m_connection.getInputStream();

@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "21.1.2"
-
+    def THE_API_KEY = '"' + TheAPIKey + '"';
     defaultConfig {
         applicationId "barqsoft.footballscores"
         minSdkVersion 11
@@ -12,6 +12,9 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        all {
+            buildConfigField 'String', 'THE_API_KEY', THE_API_KEY
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
