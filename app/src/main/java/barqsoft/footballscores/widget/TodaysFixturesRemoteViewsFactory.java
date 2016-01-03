@@ -59,6 +59,8 @@ public class TodaysFixturesRemoteViewsFactory implements RemoteViewsService.Remo
         views.setImageViewResource(R.id.away_crest,Utilities.getTeamCrestByTeamName(
                 data.getString(data.getColumnIndex(ScoreContract.ScoreColumn.AWAY_COL))));
 
+
+
         // home team name
         String homeTeamName = data.getString(data.getColumnIndex(ScoreContract.ScoreColumn.HOME_COL));
         views.setTextViewText(R.id.home_name, homeTeamName);
@@ -86,6 +88,9 @@ public class TodaysFixturesRemoteViewsFactory implements RemoteViewsService.Remo
         String awayTeamName = data.getString(data.getColumnIndex(ScoreContract.ScoreColumn.AWAY_COL));
         views.setTextViewText(R.id.away_name, awayTeamName);
         views.setTextColor(R.id.away_name, ContextCompat.getColor(mContext, R.color.secondary_text));
+
+        views.setContentDescription(R.id.home_crest,homeTeamName);
+        views.setContentDescription(R.id.away_crest,awayTeamName);
 
         // set content description on away team logo
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
